@@ -175,4 +175,100 @@
         else incomeTax = taxableIncomeTax * 0.40 - 2796000;
         incomeTax = Math.floor(incomeTax);
 
-        // 5. 住民税の概算 (約10
+        // 5. 住民税の概算 (約10% + 均等割5000円)
+        const residentTax = taxableResidentTax > 0 ? Math.floor(taxableResidentTax * 0.10) + 5000 : 0;
+
+        // 6. 消費税の概算 (支出は税込と仮定し、10%計算：支出 × 10/110)
+        const consumptionTax = Math.floor(spending * (10 / 110));
+        const pureSpending = spending - consumptionTax; // 税抜の支出
+
+        // 7. 手元に残るお金 (貯金等)
+        let remainingMoney = income - socialInsurance - incomeTax - residentTax - spending;
+        if (remainingMoney < 0) remainingMoney = 0;
+
+        // 総負担額
+        const totalTaxes = socialInsurance + incomeTax + residentTax + consumptionTax;
+
+        // UIの更新
+        updateUI(income, socialInsurance, incomeTax, residentTax, consumptionTax, pureSpending, remainingMoney, totalTaxes);
+        drawChart(socialInsurance, incomeTax, residentTax, consumptionTax, pureSpending, remainingMoney);
+    }
+
+    function updateUI(income, soc, incTax, resTax, consTax, spend, remain, total) {
+        document.getElementById('resultSection').style.display = 'flex';
+        
+        // 収入に対する総負担額の割合を計算（小数点第1位まで）
+        const percentage = ((total / income) * 100).toFixed(1);
+        
+        const detailsHtml = `
+            <h3>内訳（年間概算）</h3>
+            <div class="detail-item"><span>額面年収:</span> <span>${income.toLocaleString()} 円</span></div>
+            <div class="detail-item"><span>社会保険料:</span> <span>${soc.toLocaleString()} 円</span></div>
+            <div class="detail-item"><span>所得税:</span> <span>${incTax.toLocaleString()} 円</span></div>
+            <div class="detail-item"><span>住民税:</span> <span>${resTax.toLocaleString()} 円</span></div>
+            <div class="detail-item"><span>消費税:</span> <span>${consTax.toLocaleString()} 円</span></div>
+            <div class="detail-item"><span>その他の支出(税抜):</span> <span>${spend.toLocaleString()} 円</span></div>
+            <div class="detail-item"><span>手元に残るお金(貯蓄等):</span> <span>${remain.toLocaleString()} 円</span></div>
+            
+            <div class="total-display-box">
+                <div class="total-display-label">国・自治体に納めた総額:</div>
+                <div class="total-display-amount">${total.toLocaleString()} 円</div>
+                <div class="total-display-percentage">(収入全体の ${percentage} %)</div>
+            </div>
+        `;
+        document.getElementById('detailsList').innerHTML = detailsHtml;
+    }
+
+    function drawChart(soc, incTax, resTax, consTax, spend, remain) {
+        const ctx = document.getElementById('taxChart').getContext('2d');
+        
+        if (taxChartInstance) {
+            taxChartInstance.destroy();
+        }
+
+        taxChartInstance = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: ['社会保険料', '所得税', '住民税', '消費税', 'その他の支出(税抜)', '手元に残るお金'],
+                datasets: [{
+                    data: [soc, incTax, resTax, consTax, spend, remain],
+                    backgroundColor: [
+                        '#3498db', // 水色: 社会保険（指定）
+                        '#e67e22', // オレンジ: 所得税
+                        '#f1c40f', // 黄色: 住民税
+                        '#e74c3c', // 赤色: 消費税（指定）
+                        '#95a5a6', // 灰: 支出
+                        '#2ecc71'  // 緑: 残り
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed !== null) {
+                                    label += new Intl.NumberFormat('ja-JP').format(context.parsed) + ' 円';
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+</script>
+
+</body>
+</html>
