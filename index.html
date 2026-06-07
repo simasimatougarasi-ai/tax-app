@@ -83,7 +83,7 @@
             border-bottom: 1px solid #eee;
             padding-bottom: 5px;
         }
-        /* 追加した中央揃えの総額用スタイル */
+        /* 中央揃えの総額表示ボックス */
         .total-display-box {
             text-align: center;
             font-weight: bold;
@@ -99,6 +99,12 @@
         .total-display-amount {
             font-size: 1.8rem;
             margin-top: 8px;
+        }
+        /* 追加したパーセント表示のスタイル */
+        .total-display-percentage {
+            font-size: 1.1rem;
+            color: #e74c3c;
+            margin-top: 5px;
         }
     </style>
 </head>
@@ -169,54 +175,4 @@
         else incomeTax = taxableIncomeTax * 0.40 - 2796000;
         incomeTax = Math.floor(incomeTax);
 
-        // 5. 住民税の概算 (約10% + 均等割5000円)
-        const residentTax = taxableResidentTax > 0 ? Math.floor(taxableResidentTax * 0.10) + 5000 : 0;
-
-        // 6. 消費税の概算 (支出は税込と仮定し、10%計算：支出 × 10/110)
-        const consumptionTax = Math.floor(spending * (10 / 110));
-        const pureSpending = spending - consumptionTax; // 税抜の支出
-
-        // 7. 手元に残るお金 (貯金等)
-        let remainingMoney = income - socialInsurance - incomeTax - residentTax - spending;
-        if (remainingMoney < 0) remainingMoney = 0;
-
-        // 総負担額
-        const totalTaxes = socialInsurance + incomeTax + residentTax + consumptionTax;
-
-        // UIの更新
-        updateUI(income, socialInsurance, incomeTax, residentTax, consumptionTax, pureSpending, remainingMoney, totalTaxes);
-        drawChart(socialInsurance, incomeTax, residentTax, consumptionTax, pureSpending, remainingMoney);
-    }
-
-    function updateUI(income, soc, incTax, resTax, consTax, spend, remain, total) {
-        document.getElementById('resultSection').style.display = 'flex';
-        
-        const detailsHtml = `
-            <h3>内訳（年間概算）</h3>
-            <div class="detail-item"><span>額面年収:</span> <span>${income.toLocaleString()} 円</span></div>
-            <div class="detail-item"><span>社会保険料:</span> <span>${soc.toLocaleString()} 円</span></div>
-            <div class="detail-item"><span>所得税:</span> <span>${incTax.toLocaleString()} 円</span></div>
-            <div class="detail-item"><span>住民税:</span> <span>${resTax.toLocaleString()} 円</span></div>
-            <div class="detail-item"><span>消費税:</span> <span>${consTax.toLocaleString()} 円</span></div>
-            <div class="detail-item"><span>その他の支出(税抜):</span> <span>${spend.toLocaleString()} 円</span></div>
-            <div class="detail-item"><span>手元に残るお金(貯蓄等):</span> <span>${remain.toLocaleString()} 円</span></div>
-            
-            <div class="total-display-box">
-                <div class="total-display-label">国・自治体に納めた総額:</div>
-                <div class="total-display-amount">${total.toLocaleString()} 円</div>
-            </div>
-        `;
-        document.getElementById('detailsList').innerHTML = detailsHtml;
-    }
-
-    function drawChart(soc, incTax, resTax, consTax, spend, remain) {
-        const ctx = document.getElementById('taxChart').getContext('2d');
-        
-        if (taxChartInstance) {
-            taxChartInstance.destroy();
-        }
-
-        taxChartInstance = new Chart(ctx, {
-            type: 'pie',
-            data: {
-                labels:
+        // 5. 住民税の概算 (約10
