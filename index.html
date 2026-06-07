@@ -7,23 +7,23 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body { font-family: 'Helvetica Neue', Arial, sans-serif; background-color: #f7f9fc; padding: 20px; display: flex; justify-content: center; }
-        .container { background-color: #fff; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); padding: 30px; max-width: 800px; width: 100%; }
-        h1 { text-align: center; font-size: 1.4rem; color: #2c3e50; margin-bottom: 5px; }
+        .container { background-color: #fff; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); padding: 20px; max-width: 700px; width: 100%; }
+        h1 { text-align: center; font-size: 1.3rem; color: #2c3e50; margin-bottom: 5px; }
         .privacy-note { text-align: center; font-size: 6pt; color: #e74c3c; margin-bottom: 20px; }
+        .section-title { font-size: 1.1rem; border-bottom: 2px solid #3498db; margin-top: 15px; margin-bottom: 10px; padding-bottom: 5px; }
+        .input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .input-group { margin-bottom: 5px; }
+        label { display: block; font-size: 0.8rem; font-weight: bold; }
+        input { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background-color: #3498db; color: #fff; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; margin-top: 15px; }
         
-        /* 修正箇所：レイアウトの整理 */
-        .result-section { 
-            display: flex; 
-            flex-wrap: wrap; /* ここで縦並びを制御 */
-            margin-top: 30px; 
-            gap: 20px; 
-        }
-        .chart-container { flex: 1 1 350px; min-height: 300px; }
-        .details-container { flex: 1 1 350px; background-color: #f8f9fa; padding: 20px; border-radius: 8px; }
-        
-        .detail-item { display: flex; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px solid #eee; }
-        .total-display-box { text-align: center; color: #e74c3c; margin-top: 20px; padding-top: 15px; border-top: 2px dashed #ddd; }
-        .total-display-amount { font-size: 1.6rem; font-weight: bold; margin-top: 5px; }
+        /* 修正：グラフとリストを縦に並べる設定 */
+        .result-section { display: flex; flex-direction: column; gap: 20px; margin-top: 20px; }
+        .chart-container { width: 100%; height: 300px; }
+        .details-container { width: 100%; background: #f8f9fa; padding: 15px; border-radius: 8px; }
+        .detail-item { display: flex; justify-content: space-between; font-size: 0.9rem; border-bottom: 1px solid #eee; padding: 5px 0; }
+        .total-display-box { text-align: center; color: #e74c3c; margin-top: 15px; padding-top: 10px; border-top: 2px dashed #ddd; }
+        .total-display-amount { font-size: 1.5rem; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -32,6 +32,21 @@
     <h1>あなたの収入、税金でどれくらい引かれてる？</h1>
     <p class="privacy-note">※入力データは一切収集されません</p>
     
+    <div class="section-title">収入</div>
+    <div class="input-grid">
+        <div class="input-group"><label>月収(円)</label><input type="number" id="monthlyIncome" oninput="calculateLiveTotals()"></div>
+        <div class="input-group"><label>ボーナス夏(円)</label><input type="number" id="bonusSummer" oninput="calculateLiveTotals()"></div>
+        <div class="input-group"><label>ボーナス冬(円)</label><input type="number" id="bonusWinter" oninput="calculateLiveTotals()"></div>
+    </div>
+
+    <div class="section-title">支出(月額)</div>
+    <div class="input-grid">
+        <div class="input-group"><label>家賃</label><input type="number" id="rent" oninput="calculateLiveTotals()"></div>
+        <div class="input-group"><label>食費</label><input type="number" id="food" oninput="calculateLiveTotals()"></div>
+    </div>
+    
+    <button onclick="calculateTaxes()">計算してグラフを表示</button>
+
     <div class="result-section" id="resultSection" style="display: none;">
         <div class="chart-container"><canvas id="taxChart"></canvas></div>
         <div class="details-container" id="detailsList"></div>
@@ -39,7 +54,15 @@
 </div>
 
 <script>
-    // ...（計算ロジックは前回同様）...
+    // 計算ロジックなどは前回までの内容を維持
+    function calculateTaxes() {
+        const m = parseInt(document.getElementById('monthlyIncome').value) || 0;
+        const bs = parseInt(document.getElementById('bonusSummer').value) || 0;
+        const bw = parseInt(document.getElementById('bonusWinter').value) || 0;
+        const income = m * 12 + bs + bw;
+        // (以下、前回の計算ロジックをここに記述)
+        // ...
+    }
 </script>
 
 </body>
